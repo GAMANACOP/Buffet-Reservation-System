@@ -30,3 +30,10 @@
 *.exe
 *.out
 *.app
+
+# Compiled files
+*.o
+*.win
+
+# Specific files
+proposal screen output.cpp
