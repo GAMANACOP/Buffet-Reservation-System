@@ -1,96 +1,127 @@
 #include <iostream>
 #include <queue>
+#include <iomanip>
+#include <cstdlib>
+
 #include "Group.h"
+
+#define COLUMN_WIDTH 100
 
 using namespace std;
 
-class Table {
-	private:
-		Group group;
-		bool hasGroup = false;
-		int tableNumber;
-		
-	public:
-		Group getCurrentGroup() {
-			return group;
-		}
-		int getTableNumber() {
-			return tableNumber;
-		}
-		
-		void setTableNumber (int num) {
-			tableNumber = num;
-		}
-		
-		void setTableGroup(Group newGroup) {
-			group = newGroup;
-			hasGroup = true;
-		}
-		
-		bool isTableEmpty() {
-			return hasGroup;
-		}
-};
+int calculateTextPadding(const string& text, int width) {
+	return (width - text.length()) / 2;
+}
 
+string centerText(const string& text, int width) {
+    int padding = calculateTextPadding(text, width);  // Calculate left padding
+    int extra = (width - text.length()) % 2;    // Extra space for odd-length texts
+    if (padding > 0)
+        return string(padding, ' ') + text + string(padding + extra, ' ');
+    return text;
+}
 
+// Print out a divider that fills the whole width
+void printDivider(const char& fill) {
+	cout << setfill(fill) << setw(COLUMN_WIDTH) << fill;
+	cout << setfill(' ') << endl;
+}
 
-class TablesList {
-	private:
-		struct TableNode {
-			Table data;
-			TableNode *next;
-		};
-		
-		TableNode *head;
-		
-		void saveTablesToFile();
-		void loadTablesFromFile();
-		
-	public:
-		int numOfTables = 0;
-		
-		void createTable() {
-			Table newTable;
-			newTable.setTableNumber(++numOfTables);
-			
-			TableNode *newNode = new TableNode;
-			newNode->data = newTable;
-			newNode->next = NULL;
-			
-			TableNode *nodePtr;
-			
-			if (!head) {
-				head = newNode;
-			} else {
-				nodePtr = head;
-				
-				while (nodePtr->next) {
-					nodePtr = nodePtr->next;
-				}
-				
-				nodePtr->next = newNode;
-			}
+// Function to print a formatted title with dividers.
+void printTitle(const string& title) {
+	printDivider('=');
+	
+	int textWidth = COLUMN_WIDTH - 4;
+	cout << "||" << setw(textWidth) << left << centerText(title, COLUMN_WIDTH - 4) << "||" << endl;
+	printDivider('=');
+}
+
+// Function to print out options menu
+void printOptions(string options[], int arraySize) {
+	int leastLinePadding = 0;
+	
+	for (int i = 0; i < arraySize; i++) {
+		int linePadding = calculateTextPadding(options[i], COLUMN_WIDTH);
+		if (leastLinePadding == 0) {
+			leastLinePadding = linePadding;
+		} else {
+			if (linePadding < leastLinePadding) leastLinePadding = linePadding;
 		}
 		
-		void createTables(const int &num) {
-			for (int i = 0; i < num; i++) {
-				createTable();
-			}
-		}
+	}
+	
+	for (int i = 0; i < arraySize; i++) {
+		cout << string(leastLinePadding, ' ') + options[i] << "\n";
+	}
+}
+
+// Function to print title and options (refer to printTitle and printOptions)
+void printTitleAndOptions(const string& title, string options[], int arraySize) {
+	printTitle(title);
+	cout << endl;
+	printOptions(options, arraySize);
+	cout << endl;
+}
+
+void displayMainMenu() {
+	string options[] = {
+		"[1] Reserve Group",
+		"[2] Cancel Reservation",
+		"[3] Check Available Tables",
+		"[4] Find Table",
+		"[5] Assign Queued to Table",
+		"[6] Bill out & Vacate Occupied Table",
+		"[7] Exit",
+	};
+	int arraySize = sizeof(options)/sizeof(options[0]);
+	printTitleAndOptions("Buffet Reservation System v1.0", options, arraySize);
+	printDivider('=');
+}
+
+void displayReserveGroupMenu() {
+	string options[] = {
+		"[1] Add Child",
+		"[2] Add Adult",
+		"[3] Add Senior",
+		"[4] Remove Member",
+		"[5] Compute Payment",
+		"[6] Confirm Reservation",
+		"[7] Cancel Reservation",
+	};
+	int arraySize = sizeof(options)/sizeof(options[0]);
+	printTitleAndOptions("Reserving Group", options, arraySize);
+	printDivider('=');
+	
+	int option;
+	
+	cout << "Select an operation: ";
+	cin >> option;
+	
+	switch (option) {
 		
-		bool hasAvailableTable() {
-			
-			
-			
-			return false;
-		}
-};
+	}
+}
 
 int main() {
 	
-	queue<Group> groupQueue;
-	TablesList Tables;
-	Tables.createTables(10);
+	
+	int option;
+	
+	while (option != 7) {
+		displayMainMenu();
+		
+		cout << "Select an option: ";
+		cin >> option;
+		
+		switch (option) {
+			case 1: {
+				system("CLS");
+				displayReserveGroupMenu();
+				system("pause");
+				break;
+			}
+		}
+	} 
 	
 	return 0;
 }
