@@ -1,48 +1,18 @@
 #include "Group.h"
+
 #include <iostream>
 #include <string>
 #include <list>
 #include <deque>
+#include <fstream>
 
-float DEFAULT_CHILD_DISCOUNT = 0.05;
-float DEFAULT_ADULT_DISCOUNT = 0.0;
-float DEFAULT_SENIOR_DISCOUNT = 0.2;
+float const DEFAULT_FEE = 200;
+float const DEFAULT_CHILD_DISCOUNT = 0.05;
+float const DEFAULT_ADULT_DISCOUNT = 0.0;
+float const DEFAULT_SENIOR_DISCOUNT = 0.2;
+
 
 using namespace std;
-
-
-Group Table::getCurrentGroup() const {
-	return group;
-}
-
-int Table::getTableNumber() const {
-	return tableNumber;
-}
-
-void Table::setTableNumber (int num) {
-	tableNumber = num;
-}
-		
-void Table::setTableGroup(Group newGroup) {
-	group = newGroup;
-	hasGroup = true;
-}
-		
-bool Table::isTableEmpty() const {
-	return !hasGroup;
-}
-
-bool TablesList::hasAvailableTable() {
-	list<Table>::iterator iter;
-	
-	for (iter = tableList.begin(); iter != tableList.end(); iter++) {
-		if ((*iter).isTableEmpty()) {
-			return true;
-		}
-	}
-	
-	return false;
-}
 
 void Group::appendNode(Member newMember) {
 	MemberNode *newNode = new MemberNode;
@@ -89,6 +59,10 @@ void Group::RemoveMember(string MemberType) {
 	}
 }
 
+void Group::ConfirmReservation(queue<Group> &groupQueue) {
+	groupQueue.push(*this);
+}
+
 void Group::AddChild() {
 	Member newMember;
 	newMember.setMemberType("Child");
@@ -113,4 +87,43 @@ void Group::AddSenior() {
 	totalMembers++;
 }
 
+void Group::setRepresentativeName(string repName) {
+	representativeName = repName;
+}
 
+int Group::countMember(string memberType) const {
+	int count = 0;
+	
+	MemberNode *nodePtr = head;
+	
+	while (nodePtr) {
+		
+		if (nodePtr->data.getMemberType() == memberType) {
+			count++;
+		}
+		
+		nodePtr = nodePtr->next;
+	}
+	
+	return count;
+}
+
+float Group::computeMemberTotalFee(string memberType) const {
+	float payment = 0.0;
+	
+	MemberNode *nodePtr = head;
+	
+	while (nodePtr) {
+		if (nodePtr->data.getMemberType() == memberType) {
+			payment += DEFAULT_FEE - (DEFAULT_FEE * nodePtr->data.getDiscount());	
+		}
+		
+		nodePtr = nodePtr->next;
+	}
+	
+	return payment;
+}
+
+float Group::computeTotalPayment() const {
+	return (computeMemberTotalFee("Child") + computeMemberTotalFee("Adult") + computeMemberTotalFee("Senior"));
+}

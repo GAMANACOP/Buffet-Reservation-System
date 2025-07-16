@@ -3,6 +3,7 @@
 
 #include <string>
 #include <list>
+#include <queue>
 
 using namespace std;
 
@@ -26,6 +27,7 @@ class Group {
 		};
 		
 		MemberNode *head;
+		int totalMembers;
 		string representativeName;
 
 		void appendNode(Member);
@@ -33,66 +35,31 @@ class Group {
 		
 	public:
 		
-		int totalMembers;
-		
 		Group() {
 			head = NULL;
 			totalMembers = 0;
 		}
 		
 		void setRepresentativeName(std::string);
+		string getRepresentativeName() const {return representativeName;}
+		
+		// Functions for adding member
 		void AddChild();
 		void AddAdult();
 		void AddSenior();
+		
+		// Function for removing member
 		void RemoveMember(std::string);
-		void ConfirmReservation();
-		int countChild() const;
-		int countSenior() const;
-		int countAdult() const;
-};
-
-
-class Table {
-	private:
-		Group group;
-		bool hasGroup = false;
-		int tableNumber = 0;
 		
-	public:
-		Group getCurrentGroup() const;
-		int getTableNumber() const;
-		bool isTableEmpty() const;
-		void setTableNumber (int num);
-		void setTableGroup(Group newGroup);
-};
-
-
-
-class TablesList {
-	private:
+		// Function for confirming reservation
+		void ConfirmReservation(queue<Group> &);
 		
-		list<Table> tableList;
-		int numOftables = 0;
+		// Functions for computing payments
+		float computeTotalPayment() const;
+		float computeMemberTotalFee(std::string) const;
 		
-		void saveTablesToFile();
-		void loadTablesFromFile();
-		
-	public:
-		int numOfTables = 0;
-		
-		void createTable() {
-			Table newTable;
-			newTable.setTableNumber(++numOftables);
-			tableList.push_back(newTable);
-		}
-		
-		void createTables(const int &numberOfTables) {
-			for (int i = 0; i < numberOfTables; i++) {
-				createTable();
-			}
-		}
-		
-		bool hasAvailableTable();
+		int countMember(std::string) const;
+		int getTotalMembers() const {return totalMembers;}
 };
 
 #endif
