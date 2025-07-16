@@ -1,16 +1,11 @@
 #include "Group.h"
+#include "DefaultValues.h"
 
 #include <iostream>
 #include <string>
 #include <list>
 #include <deque>
 #include <fstream>
-
-float const DEFAULT_FEE = 200;
-float const DEFAULT_CHILD_DISCOUNT = 0.05;
-float const DEFAULT_ADULT_DISCOUNT = 0.0;
-float const DEFAULT_SENIOR_DISCOUNT = 0.2;
-
 
 using namespace std;
 
@@ -36,11 +31,21 @@ void Group::RemoveMember(string MemberType) {
 	if (!head) {
 		cout << "List is empty";
 	} else {
-		MemberNode *nodePtr = head;
 		if (head->data.getMemberType() == MemberType) {
-			head = nodePtr->next;
+			
+			MemberNode *tempPtr = head;
+			tempPtr = head->next;
 			delete head;
-			totalMembers--;
+			head = tempPtr;
+			
+			if (MemberType == "Child") {
+				childCount--;
+			} else if (MemberType == "Adult") {
+				adultCount--;
+			} else if (MemberType == "Senior") {
+				seniorCount--;
+			}
+			return;
 		} else {
 			MemberNode *nodePtr = head->next;
 			MemberNode *prevNode = head;
@@ -49,7 +54,16 @@ void Group::RemoveMember(string MemberType) {
 				if (nodePtr->data.getMemberType() == MemberType) {
 					prevNode->next = nodePtr->next;
 					delete nodePtr;
-					totalMembers--;
+					
+					if (MemberType == "Child") {
+						childCount--;
+					} else if (MemberType == "Adult") {
+						adultCount--;
+					} else if (MemberType == "Senior") {
+						seniorCount--;
+					}
+					
+					return;
 				} else {
 					prevNode = nodePtr;
 					nodePtr = nodePtr->next;
@@ -68,7 +82,7 @@ void Group::AddChild() {
 	newMember.setMemberType("Child");
 	newMember.setDiscount(DEFAULT_CHILD_DISCOUNT);
 	appendNode(newMember);
-	totalMembers++;
+	childCount++;
 }
 
 void Group::AddAdult() {
@@ -76,7 +90,7 @@ void Group::AddAdult() {
 	newMember.setMemberType("Adult");
 	newMember.setDiscount(DEFAULT_ADULT_DISCOUNT);
 	appendNode(newMember);
-	totalMembers++;
+	adultCount++;
 }
 
 void Group::AddSenior() {
@@ -84,7 +98,7 @@ void Group::AddSenior() {
 	newMember.setMemberType("Senior");
 	newMember.setDiscount(DEFAULT_SENIOR_DISCOUNT);
 	appendNode(newMember);
-	totalMembers++;
+	seniorCount++;
 }
 
 void Group::setRepresentativeName(string repName) {
@@ -92,20 +106,13 @@ void Group::setRepresentativeName(string repName) {
 }
 
 int Group::countMember(string memberType) const {
-	int count = 0;
-	
-	MemberNode *nodePtr = head;
-	
-	while (nodePtr) {
-		
-		if (nodePtr->data.getMemberType() == memberType) {
-			count++;
-		}
-		
-		nodePtr = nodePtr->next;
+	if (memberType == "Child") {
+		return childCount;
+	} else if (memberType == "Adult") {
+		return adultCount;
+	} else if (memberType == "Senior") {
+		return seniorCount;
 	}
-	
-	return count;
 }
 
 float Group::computeMemberTotalFee(string memberType) const {

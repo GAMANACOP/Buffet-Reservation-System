@@ -1,11 +1,11 @@
-#include "GroupQueue.h"
-#include "Group.h"
-
 #include <string>
 #include <fstream>
 #include <iostream>
 
-string DEFAULT_QUEUE_FILENAME = "BRSQueue.txt";
+#include "GroupQueue.h"
+#include "Group.h"
+#include "Utils.h"
+#include "DefaultValues.h"
 
 using namespace std;
 
@@ -14,7 +14,7 @@ using namespace std;
 // To do so, create a temporary copy of the queue.
 // Unless the group is equal to the representative name, pop from the original queue and push a copy to the temporary.
 // Then assign original with temp;
-void GroupQueue::cancelReservation(string representativeName) {
+bool GroupQueue::cancelReservation(string representativeName) {
     queue<Group> tempQueue; // This will hold the groups we want to keep
     bool found = false;
 
@@ -24,7 +24,7 @@ void GroupQueue::cancelReservation(string representativeName) {
         groupQueue.pop(); // Remove it from the original queue
 
         // If this is NOT the group to cancel, push it to the temporary queue
-        if (currentGroup.getRepresentativeName() != representativeName) {
+        if (toLowercase(currentGroup.getRepresentativeName()) != toLowercase(representativeName)) {
             tempQueue.push(currentGroup);
         } else {
             // This is the group to cancel
@@ -36,10 +36,10 @@ void GroupQueue::cancelReservation(string representativeName) {
     // After iterating through all elements, assign the temporary queue back
     // to the original groupQueue. This effectively removes the cancelled group(s).
     groupQueue = tempQueue;
-
-    if (!found) {
-        cout << "No reservation found for '" << representativeName << "'." << endl;
-    }
+    
+    saveQueueToFile();
+    
+    return found;
 }
 
 void GroupQueue::appendToQueue(Group group) {
@@ -95,6 +95,16 @@ void GroupQueue::loadQueueFromFile() {
 			queueFile >> childCount;
 			queueFile >> adultCount;
 			queueFile >> seniorCount;
+			
+			for (int i = 0; i < childCount; i++) {
+				savedGroup.AddChild();
+			}
+			for (int i = 0; i < adultCount; i++) {
+				savedGroup.AddAdult();
+			}
+			for (int i = 0; i < seniorCount; i++) {
+				savedGroup.AddSenior();
+			}
 			
 			groupQueue.push(savedGroup);
 		}

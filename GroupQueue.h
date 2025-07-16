@@ -11,7 +11,7 @@ class GroupQueue {
 		
 	public:
 		queue<Group>& getQueue() {return groupQueue;}
-		void cancelReservation(string representativeName);
+		bool cancelReservation(string representativeName);
 		void saveQueueToFile();
 		void loadQueueFromFile();
 		void appendToQueue(Group group);

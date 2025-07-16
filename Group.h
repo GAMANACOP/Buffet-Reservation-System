@@ -1,9 +1,9 @@
-#ifndef GROUP_H
-#define GROUP_H
-
 #include <string>
 #include <list>
 #include <queue>
+
+#ifndef GROUP_H
+#define GROUP_H
 
 using namespace std;
 
@@ -27,7 +27,10 @@ class Group {
 		};
 		
 		MemberNode *head;
-		int totalMembers;
+
+		int childCount;
+		int adultCount;
+		int seniorCount;
 		string representativeName;
 
 		void appendNode(Member);
@@ -37,10 +40,12 @@ class Group {
 		
 		Group() {
 			head = NULL;
-			totalMembers = 0;
+			childCount = 0;
+			adultCount = 0;
+			seniorCount = 0;
 		}
 		
-		void setRepresentativeName(std::string);
+		void setRepresentativeName(string);
 		string getRepresentativeName() const {return representativeName;}
 		
 		// Functions for adding member
@@ -56,10 +61,10 @@ class Group {
 		
 		// Functions for computing payments
 		float computeTotalPayment() const;
-		float computeMemberTotalFee(std::string) const;
+		float computeMemberTotalFee(string memberType) const;
 		
-		int countMember(std::string) const;
-		int getTotalMembers() const {return totalMembers;}
+		int countMember(string) const;
+		int getTotalMembers() const {return adultCount + childCount + seniorCount;}
 };
 
 #endif

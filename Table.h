@@ -1,15 +1,19 @@
+#include "Group.h"
+
 #ifndef TABLE_H
 #define TABLE_H
-
-#include "Group.h"
 
 class Table {
 	private:
 		Group group;
-		bool hasGroup = false;
-		int tableNumber = 0;
+		bool hasGroup;
+		int tableNumber;
 		
 	public:
+		Table () {
+			hasGroup = false;
+			tableNumber = 0;
+		}
 		Group getCurrentGroup() const {return group;}
 		int getTableNumber() const {return tableNumber;}
 		bool isTableEmpty() const {return !hasGroup;}
@@ -28,13 +32,13 @@ class TablesList {
 		void createTable();
 		void createTables(const int &numberOfTables);
 		
-		void incrementNumofCurrentTables() {numOfCurrentTables++;}
-		void decrementNumofCurrentTables() {numOfCurrentTables--;}
-		
 		int getNumOfCurrentTables() const {return numOfCurrentTables;}
+		list<Table>& getList() {return tableList;}
 		
 		bool hasAvailableTable();
-		void assignGroupToTable(Group group);
+		void displayAvailableTables();
+		int assignGroupToTable(Group group, int tableNum = 0);
+		int findRepresentativeTable(string representativeName);
 		
 		// File handling relevant functions
 		void saveTablesToFile();
