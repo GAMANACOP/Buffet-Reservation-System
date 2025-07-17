@@ -19,6 +19,7 @@ class Table {
 		bool isTableEmpty() const {return !hasGroup;}
 		void setTableNumber (int num);
 		void setTableGroup(Group newGroup);
+		void vacateTable();
 };
 
 class TablesList {
@@ -32,13 +33,14 @@ class TablesList {
 		void createTable();
 		void createTables(const int &numberOfTables);
 		
-		int getNumOfCurrentTables() const {return numOfCurrentTables;}
+		int  getNumOfCurrentTables() const {return numOfCurrentTables;}
+		int  getNumOfOccupiedTables() const {return numOfOccupiedTables;}
 		list<Table>& getList() {return tableList;}
 		
 		bool hasAvailableTable();
-		void displayAvailableTables();
-		int assignGroupToTable(Group group, int tableNum = 0);
-		int findRepresentativeTable(string representativeName);
+		int  assignGroupToTable(const Group group, int tableNum = 0);
+		void vacateTable(Table &table);
+		int  findRepresentativeTable(string representativeName);
 		
 		// File handling relevant functions
 		void saveTablesToFile();

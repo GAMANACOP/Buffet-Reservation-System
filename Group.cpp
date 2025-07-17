@@ -121,13 +121,14 @@ float Group::computeMemberTotalFee(string memberType) const {
 	MemberNode *nodePtr = head;
 	
 	while (nodePtr) {
+		
 		if (nodePtr->data.getMemberType() == memberType) {
 			payment += DEFAULT_FEE - (DEFAULT_FEE * nodePtr->data.getDiscount());	
 		}
 		
 		nodePtr = nodePtr->next;
 	}
-	
+		
 	return payment;
 }
 

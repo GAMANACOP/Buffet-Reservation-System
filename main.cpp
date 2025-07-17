@@ -166,7 +166,7 @@ void printRepresentativeRow(string repName) {
     cout << endl;
 }
 
-void displayPaymentDetails(Group &group) {
+void displayPaymentDetails(const Group &group) {
 	
     // Print representative name
 	printRepresentativeRow(group.getRepresentativeName());
@@ -332,24 +332,9 @@ void displayReserveGroupMenu(GroupQueue &groupQueue) {
 	}
 }
 
-void displayMainMenu() {
-	system("CLS");
-	string options[] = {
-		"[1] Reserve Group",
-		"[2] Cancel Reservation",
-		"[3] Check Available Tables",
-		"[4] Find Representative\'s Table",
-		"[5] Assign Queued to Table",
-		"[6] Bill out & Vacate Occupied Table",
-		"[7] Exit",
-	};
-	int arraySize = sizeof(options)/sizeof(options[0]);
-	printTitleAndOptions("Buffet Reservation System", options, arraySize);
-}
-
 void displayCancelReservationMenu(GroupQueue &groupQueue) {
 	if (groupQueue.getQueue().empty()) {
-		cout << "The queue is empty! No reservations can be cancelled." << endl;
+		cout << "The queue is empty! No reservations can be cancelled." << endl << endl;
 		printDivider('=');
 		system("pause");
 		return;
@@ -419,6 +404,139 @@ void displayFindRepresentativeTableMenu(TablesList &tables) {
 	system("pause");
 }
 
+void displayBillOutMenu(TablesList &tables) {
+	
+	int selectedTableNumber = 0;
+	bool successfullyVacateTable = false;
+	bool hasOccupiedTable = false;
+	list<Table>::iterator iter;
+	
+	
+	while (selectedTableNumber <= tables.getNumOfOccupiedTables() && !successfullyVacateTable) {
+		system("CLS");
+		printTitle("Buffet Reservation System - Billing Out");
+
+		if (selectedTableNumber <= 0) {
+			cout << endl;
+			cout << centerText("Occupied Tables:", COLUMN_WIDTH) << endl;
+			
+			if (tables.getNumOfOccupiedTables() <= 0) {
+				cout << centerText("There are no occupied tables.", COLUMN_WIDTH) << endl << endl;
+				printDivider('=');
+				cout << endl;
+				system("pause");
+				break;
+			} else {
+				int leastLinePadding = 0;
+				for (iter = tables.getList().begin(); iter != tables.getList().end(); iter++) {
+					if (!iter->isTableEmpty()) {
+						ostringstream oss;
+						oss << left << "Table #" << iter->getTableNumber() << " : " << iter->getCurrentGroup().getRepresentativeName();
+						
+						int linePadding = calculateTextPadding(oss.str(), COLUMN_WIDTH);
+						
+						if (leastLinePadding == 0) {
+							leastLinePadding = linePadding;
+						} else {
+							if (linePadding < leastLinePadding) leastLinePadding = linePadding;
+						}
+					}
+				}
+				
+				
+				for (iter = tables.getList().begin(); iter != tables.getList().end(); iter++) {
+					if (!iter->isTableEmpty()) {
+						hasOccupiedTable = true;
+					    ostringstream oss;
+					    
+					    oss << left << string(leastLinePadding, ' ') <<"Table #" << iter->getTableNumber() << " : " << iter->getCurrentGroup().getRepresentativeName();
+					    
+					    cout << oss.str() << endl;
+					}
+				}
+				cout << endl;
+				printDivider('=');
+				cout << endl;
+				
+				cout << "Enter the table number to bill out and vacate: ";
+				cin >> selectedTableNumber;
+			}
+		} else if (selectedTableNumber > 0) {
+			// Checks if the selected table number is within the bounds of 0 and number of occupied tables.
+			if (selectedTableNumber > 0 && selectedTableNumber <= tables.getNumOfOccupiedTables()) {
+				iter = tables.getList().begin();
+				
+				advance(iter, selectedTableNumber - 1);
+				
+				Group currentGroup = iter->getCurrentGroup();
+				
+				cout << endl;
+				displayPaymentDetails(currentGroup);
+				cout << endl;
+				printDivider('=');
+				cout << endl;
+				
+				float pay = 0;
+				float amountToPay = iter->getCurrentGroup().computeTotalPayment();
+				cout << "Enter payment: ";
+				while (pay < amountToPay) {
+					cin >> pay;
+					if (pay < amountToPay) {
+						cout << "Invalid amount. Enter a valid payment: ";
+					}
+				}
+				
+				cout << endl;
+				printDivider('=');
+				cout << endl;
+				
+				ostringstream ossRepName;
+				ossRepName << left << setw(25) << "Representative Name: " << currentGroup.getRepresentativeName();
+				
+				ostringstream ossPay;
+				ossPay << left << setw(25) << "Amount received: " << pay;
+								
+				ostringstream ossChange;
+				ossChange << left << setw(25) <<  "Change: " << (pay - amountToPay);
+				
+				string finalPaymentInfo[] {
+					ossRepName.str(),
+					ossPay.str(),
+					ossChange.str()
+				};
+				
+				int arraySize = sizeof(finalPaymentInfo)/sizeof(finalPaymentInfo[0]);
+				printOptions(finalPaymentInfo, arraySize);
+				
+				cout << endl;
+								
+				tables.vacateTable(*iter);
+				
+				tables.saveTablesToFile();
+				successfullyVacateTable = true;
+								
+			}
+			
+			system("pause");
+		}
+	}
+}
+
+void displayMainMenu() {
+	system("CLS");
+	string options[] = {
+		"[1] Reserve Group",
+		"[2] Cancel Reservation",
+		"[3] Check Available Tables",
+		"[4] Find Representative\'s Table",
+		"[5] Assign Queued to Table",
+		"[6] Bill out & Vacate Occupied Table",
+		"[7] Exit",
+	};
+	int arraySize = sizeof(options)/sizeof(options[0]);
+	printTitleAndOptions("Buffet Reservation System", options, arraySize);
+}
+
 int main() {
 	TablesList tables;
 	tables.createTables(DEFAULT_NUMBER_OF_TABLES);
@@ -469,7 +587,7 @@ int main() {
 				break;
 			}
 			case 6: { // TODO: Bill Out & Vacate Occupied Table
-				
+				displayBillOutMenu(tables);
 				break;
 			}
 			case 7: { // Exit

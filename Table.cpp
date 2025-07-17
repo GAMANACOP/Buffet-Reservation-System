@@ -18,6 +18,11 @@ void Table::setTableGroup(Group newGroup) {
 	group = newGroup;
 	hasGroup = true;
 }
+
+void Table::vacateTable() {
+	hasGroup = false;
+	group = Group();
+}
 	
 bool TablesList::hasAvailableTable() {
 	list<Table>::iterator iter;
@@ -81,18 +86,20 @@ void TablesList::loadTablesFromFile() {
 	ifstream tablesFile(DEFAULT_TABLES_FILENAME);
 	
 	if (tablesFile.is_open()) {
-		Group savedGroup;		
 		int savedTableNumber = 0;
 				
 		while (tablesFile >> savedTableNumber) {
 			tablesFile.ignore();
 			
+			Group savedGroup;		
+			
 			string savedRepName = "";
 			getline(tablesFile, savedRepName);
-			
+						
 			savedGroup.setRepresentativeName(savedRepName);
 			
 			int childCount = 0, adultCount = 0, seniorCount = 0;
+			
 			tablesFile >> childCount;
 			tablesFile >> adultCount;
 			tablesFile >> seniorCount;
@@ -111,11 +118,11 @@ void TablesList::loadTablesFromFile() {
 		}
 		
 	}
-	
+		
 	tablesFile.close();
 }
 
-int TablesList::assignGroupToTable(Group group, int tableNum) {	
+int TablesList::assignGroupToTable(const Group group, int tableNum) {	
 	bool assigned = false;
 	int assignedTableNumber = -1;
 	
@@ -168,5 +175,10 @@ int TablesList::findRepresentativeTable(string representativeName) {
 	}
 	
 	return 0;
+}
+
+void TablesList::vacateTable(Table &table) {
+	table.vacateTable();
+	numOfOccupiedTables--;
 }
 

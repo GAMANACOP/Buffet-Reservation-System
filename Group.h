@@ -40,11 +40,12 @@ class Group {
 		
 		Group() {
 			head = NULL;
+			representativeName = "";
 			childCount = 0;
 			adultCount = 0;
 			seniorCount = 0;
 		}
-		
+				
 		void setRepresentativeName(string);
 		string getRepresentativeName() const {return representativeName;}
 		
