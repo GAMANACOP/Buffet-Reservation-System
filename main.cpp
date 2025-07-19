@@ -65,8 +65,6 @@ void displayList(string options[], int arraySize) {
 	cout << endl;
 	
 	displayLineSeparator('=');
-	
-	cout << endl;
 }
 
 // Function to print title and options (refer to printTitle and printOptions)
@@ -85,12 +83,30 @@ void displayRemoveMemberMenu(Group &group) {
 		"[4] Go back"
 	};
 	int arraySize = sizeof(options)/sizeof(options[0]);
-	
-	displayTitleWithOptions("Buffet Reservation System - Removing Member", options, arraySize);
-	
+		
 	int option;
 	
 	while (option != 4) {
+		system("CLS");
+		
+		displayTitle("Buffet Reservation System - Removing Member");
+
+		// This section displays the current group information, including the representative's name and total members
+		string groupInfo[] = {
+			"Group Representative: " + group.getRepresentativeName(),
+			"Total Members: " + to_string(group.countTotalMembers()),
+			"  - Children: " + to_string(group.countMember("Child")),
+			"  - Adults: " + to_string(group.countMember("Adult")),
+			"  - Seniors: " + to_string(group.countMember("Senior"))
+		};
+		int groupInfoSize = sizeof(groupInfo) / sizeof(groupInfo[0]);
+		
+		displayList(groupInfo, groupInfoSize);
+
+		// Display the options menu for removing a member
+		displayList(options, arraySize);
+		
+		cout << endl;
 		cout << "Enter an operation: ";
 		cin >> option;
 		
@@ -98,9 +114,11 @@ void displayRemoveMemberMenu(Group &group) {
 			case 1: {
 				if (group.countMember("Child") <= 0) {
 					cout << "Invalid operation. Group current does not have child members." << endl << endl;
+					displayLineSeparator('=');
+					cout << endl;
+					system("pause");
 				} else {
 					group.removeMember("Child");
-					cout << "Successfully removed a child member from group reservation." << endl << endl;
 				}
 				
 				displayLineSeparator('=');
@@ -109,9 +127,11 @@ void displayRemoveMemberMenu(Group &group) {
 			case 2: {
 				if (group.countMember("Adult") <= 0) {
 					cout << "Invalid option. Group current does not have adult members." << endl << endl;
+					displayLineSeparator('=');
+					cout << endl;
+					system("pause");
 				} else {
 					group.removeMember("Adult");
-					cout << "Successfully removed an adult member from group reservation." << endl << endl;
 				}
 				displayLineSeparator('=');
 				break;
@@ -119,11 +139,12 @@ void displayRemoveMemberMenu(Group &group) {
 			case 3: {
 				if (group.countMember("Senior") <= 0) {
 					cout << "Invalid option. Group current does not have senior members." << endl << endl;
+					displayLineSeparator('=');
+					cout << endl;
+					system("pause");
 				} else {
 					group.removeMember("Senior");
-					cout << "Successfully removed a senior member from group reservation." << endl << endl;
 				}
-				displayLineSeparator('=');
 				break;
 			};
 			
@@ -136,10 +157,10 @@ void displayRemoveMemberMenu(Group &group) {
 // This function takes four strings and prints them in a formatted row with specified column widths
 void printRow(const string& column1, const string& column2, const string& column3, const string& column4) {
 	ostringstream oss;
-	oss << left << setw(MEMBER_TYPE_COL) << column1
-		<< left << setw(COUNT_COL)       << column2
-		<< left << setw(DISCOUNT_COL)    << column3
-		<< left << setw(TOTAL_FEE_COL)   << column4;
+	oss << left << 	setw(MEMBER_TYPE_COL) << column1
+		<< 			setw(COUNT_COL)       << column2
+		<< 			setw(DISCOUNT_COL)    << column3
+		<<			setw(TOTAL_FEE_COL)   << column4;
 
 	cout << centerText(oss.str(), COLUMN_WIDTH);
 	cout << endl;
@@ -285,39 +306,29 @@ void displayReserveGroupMenu(GroupQueue &groupQueue) {
 			"  - Seniors: " + to_string(newGroup.countMember("Senior"))
 		};
 		int groupInfoSize = sizeof(groupInfo) / sizeof(groupInfo[0]);
+		
 		displayList(groupInfo, groupInfoSize);
 
 		// Display the options menu for reserving a group
 		displayList(options, arraySize);
 		
+		cout << endl;
 		cout << "Select an operation: ";
 		cin >> option;
 		
 		switch (option) {
 			case 1: { // Add Child
 				newGroup.addChildMember();
-				cout << "Successfully added child to group!" << endl;
-				cout << endl;
-				displayLineSeparator('=');
-				cout << endl;
 				goto start;
 				break;
 			}
 			case 2: { // Add Adult
 				newGroup.addAdultMember();
-				cout << "Successfully added adult to group!" << endl;
-				cout << endl;
-				displayLineSeparator('=');
-				cout << endl;
 				goto start;
 				break;
 			}
 			case 3: { // Add Senior
 				newGroup.addSeniorMember();
-				cout << "Successfully added senior to group!" << endl;
-				cout << endl;
-				displayLineSeparator('=');
-				cout << endl;
 				goto start;
 				break;
 			}
@@ -352,7 +363,7 @@ void displayReserveGroupMenu(GroupQueue &groupQueue) {
 // Function to display a menu for cancelling a reservation
 // This function allows the user to cancel a reservation by entering the representative's name
 void displayCancelReservationMenu(GroupQueue &groupQueue) {
-	
+	start:
 	// Clear the console and display the title
 	system("CLS");
 	displayTitle("Buffet Reservation System - Cancel Reservation");
@@ -361,28 +372,62 @@ void displayCancelReservationMenu(GroupQueue &groupQueue) {
 	// If it is empty, display a message and return to the main menu
 	if (groupQueue.getQueue().empty()) {
 		cout << endl;
-		cout << "The queue is empty! No reservations can be cancelled." << endl << endl;
-		cout << endl;
+		cout << centerText("The queue is empty! No reservations can be cancelled.", COLUMN_WIDTH) << endl << endl;
 		displayLineSeparator('=');
+		cout << endl;
 		system("pause");
 		return;
 	}
 
+	// Display all queued groups using displayList
+	if (!groupQueue.getQueue().empty()) {
+		queue<Group> tempQueue = groupQueue.getQueue();
+
+		const int maxGroups = 1000;
+		string queuedGroups[maxGroups];
+
+		int idx = 0;
+
+		while (!tempQueue.empty() && idx < maxGroups) {
+			const Group &grp = tempQueue.front();
+			queuedGroups[idx] = to_string(idx + 1) + ". " + grp.getRepresentativeName() +
+				" (Total Members: " + to_string(grp.countTotalMembers()) + ")";
+			tempQueue.pop();
+			idx++;
+		}
+		cout << endl << centerText("Queued Groups:", COLUMN_WIDTH) << endl;
+		displayList(queuedGroups, idx);
+	}
+
 	// If the queue is not empty, prompt the user to enter the representative's name
 	// to cancel the reservation
-	
-	string representativeName;
-	
-	cout << "Enter the representative name of the group to be deleted: ";
-	cin.ignore();
-	getline(cin, representativeName);
+
+	int groupPosition;
+	cout << endl << "Enter the position of the group to be deleted (0 to cancel): ";
+	cin >> groupPosition;
+
+	// If user enters 0, cancel and return to main menu
+	if (groupPosition == 0) {
+		return;
+	}
+
+	// Check if the entered position is valid
+	if (groupPosition < 0 || groupPosition > groupQueue.getQueue().size()) {
+		cout << "Invalid position. Please enter a valid group position." << endl << endl;
+		displayLineSeparator('=');
+		cout << endl;
+		system("pause");
+		goto start;
+	}
 	
 	// Attempt to cancel the reservation
 	// The cancelReservation function will return true if successful, false otherwise
-	bool success = groupQueue.cancelReservation(representativeName);
-	
+	bool success = groupQueue.cancelReservation(groupPosition);
+
 	if (!success) {
 		cout << "Group with entered representative name is not found." << endl;
+	} else {
+		cout << "Successfully cancelled reservation for group of at position " << groupPosition << "." << endl << endl;
 	}
 	
 	displayLineSeparator('=');
@@ -464,7 +509,8 @@ void displayFindRepresentativeTableMenu(TablesList &tables) {
 		displayLineSeparator('=');
 		displayList(foundTables, matchCount);
 	} else {
-		cout << endl << centerText("No tables found for representative: " + repName, COLUMN_WIDTH) << endl;
+		cout << endl << centerText("No tables found for representative: " + repName, COLUMN_WIDTH) << endl << endl;
+		displayLineSeparator('=');
 	}
 
 	system("pause");
@@ -542,6 +588,7 @@ void displayBillOutMenu(TablesList &tables) {
 			// Display payment details for the selected table
 			Group currentGroup = iter->getCurrentGroup();
 
+			displayLineSeparator('=');
 			cout << endl;
 			displayPaymentDetails(currentGroup);
 			cout << endl;
@@ -558,17 +605,18 @@ void displayBillOutMenu(TablesList &tables) {
 				}
 			}
 
-			cout << endl;
-			displayLineSeparator('=');
-			cout << endl;
+			system("CLS");
+			displayTitle("Buffet Reservation System - Billing Out");
 			
 			// Instead of using ostringstream, build the strings directly
 			string repNameStr = "Representative Name: " + currentGroup.getRepresentativeName();
-			string payStr = "Amount received: " + formatFloat(pay);
-			string changeStr = "Change: " + formatFloat(pay - amountToPay);
+			string amountDueStr = "Amount Due: P" + formatFloat(amountToPay);
+			string payStr = "Amount received: P" + formatFloat(pay);
+			string changeStr = "Change: P" + formatFloat(pay - amountToPay);
 
-			string finalPaymentInfo[] {
+			string finalPaymentInfo[] = {
 				repNameStr,
+				amountDueStr,
 				payStr,
 				changeStr
 			};
@@ -594,12 +642,13 @@ void displayMainMenu() {
 	system("CLS");
 	string options[] = {
 		"[1] Reserve Group",
-		"[2] Cancel Reservation",
-		"[3] Check Available Tables",
-		"[4] Find Representative\'s Table",
-		"[5] Assign Queued to Table",
-		"[6] Bill out & Vacate Occupied Table",
-		"[7] Exit",
+		"[2] View Queued Groups",
+		"[3] Cancel Reservation",
+		"[4] Check Available Tables",
+		"[5] Find Representative\'s Table",
+		"[6] Assign Queued to Table",
+		"[7] Bill out & Vacate Occupied Table",
+		"[8] Exit",
 	};
 	int arraySize = sizeof(options)/sizeof(options[0]);
 	displayTitleWithOptions("Buffet Reservation System", options, arraySize);
@@ -608,18 +657,54 @@ void displayMainMenu() {
 
 // Function to assign the first group in the queue to an available table
 void assignQueuedToTable(GroupQueue &groupQueue, TablesList &tables) {
-	if (groupQueue.getQueue().empty()) {
-		cout << "The queue is empty! No queued to assign to table." << endl;
+	// Check if there are available tables first
+	if (tables.getNumOfCurrentTables() == tables.getNumOfOccupiedTables()) {
+		cout << "There are no available tables to assign a group." << endl;
+	} else if (groupQueue.getQueue().empty()) {
+		// If the queue is empty, display a message
+		cout << "The queue is empty. No queued group to assign a table." << endl << endl;
 	} else {
-		int assignedTableNumber = tables.assignGroupToTable(groupQueue.getQueue().front());
+		// If there are available tables and a group in the queue, assign the first group in the queue to an available table
 		
+		int assignedTableNumber = tables.assignGroupToTable(groupQueue.getQueue().front());
+
 		cout 	<< "Assigned Group of \""
 				<< groupQueue.getQueue().front().getRepresentativeName() 
-				<< "\" to Table #" << assignedTableNumber << endl;
+				<< "\" to Table #" << assignedTableNumber << endl << endl;
 		groupQueue.getQueue().pop();
 		groupQueue.saveQueueToFile();
-		
 	}
+	system("pause");
+}
+
+void displayQueuedGroups(GroupQueue &groupQueue) {
+	system("CLS");
+	displayTitle("Buffet Reservation System - Queued Groups");
+
+	if (groupQueue.getQueue().empty()) {
+		cout << endl << centerText("The queue is empty.", COLUMN_WIDTH) << endl << endl;
+		displayLineSeparator('=');
+		cout << endl;
+		system("pause");
+		return;
+	}
+
+	queue<Group> tempQueue = groupQueue.getQueue();
+	const int maxGroups = 1000;
+	string queuedGroups[maxGroups];
+	int idx = 0;
+
+	while (!tempQueue.empty() && idx < maxGroups) {
+		const Group &grp = tempQueue.front();
+		queuedGroups[idx] = to_string(idx + 1) + ". " + grp.getRepresentativeName() +
+			" (Total Members: " + to_string(grp.countTotalMembers()) + ")";
+		tempQueue.pop();
+		idx++;
+	}
+
+	displayList(queuedGroups, idx);
+
+	cout << endl;
 	system("pause");
 }
 
@@ -635,7 +720,7 @@ int main() {
 	
 	int option;
 	
-	while (option != 7) {
+	while (option != 8) {
 		displayMainMenu();
 		
 		cout << "Select an option: ";
@@ -646,32 +731,41 @@ int main() {
 				displayReserveGroupMenu(groupQueue);
 				break;
 			}
-			case 2: { // Cancel Reservation
+			case 2: { // View Queued Groups
+				displayQueuedGroups(groupQueue);
+				break;
+			}
+			case 3: { // Cancel Reservation
 				displayCancelReservationMenu(groupQueue);
 				break;
 			}
-			case 3: { // Check Available Tables
+			case 4: { // Check Available Tables
 				displayAvailableTables(tables);
 				break;
 			}
-			case 4: { // Find Representative Table
+			case 5: { // Find Representative Table
 				displayFindRepresentativeTableMenu(tables);
 				break;
 			}
-			case 5: { // Check Available Tables
+			case 6: { // Assign Queued to Table
 				assignQueuedToTable(groupQueue, tables);
 				break;
 			}
-			case 6: { // TODO: Bill Out & Vacate Occupied Table
+			case 7: { // TODO: Bill Out & Vacate Occupied Table
 				displayBillOutMenu(tables);
 				break;
 			}
-			case 7: { // Exit
+			case 8: { // Exit
 				cout << "Thank you for using this program!";
 				break;
 			}
-		}
-	} 
+			default: {
+				cout << "Invalid option. Please try again." << endl;
+				system("pause");
+				break;
+			}
+		} 
+	}
 	
 	return 0;
 }

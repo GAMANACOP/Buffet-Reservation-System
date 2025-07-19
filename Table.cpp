@@ -174,6 +174,7 @@ int TablesList::assignGroupToTable(const Group group, int tableNum) {
 	
 	list<Table>::iterator iter;
 	
+	// If tableNum is specified, force assign the group to that specific table.
 	if (tableNum > 0) {		
 		int index = 1;
 		for (iter = tableList.begin(); iter != tableList.end(); iter++) {

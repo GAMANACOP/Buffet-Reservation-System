@@ -12,24 +12,29 @@ using namespace std;
 // Cancels a reservation for a group based on the representative's name.
 // This function iterates through the queue and removes the group with the matching representative name.
 // It returns true if a group was found and cancelled, false otherwise.
-bool GroupQueue::cancelReservation(string representativeName) {
+bool GroupQueue::cancelReservation(int queuePosition) {
+
     queue<Group> tempQueue; // This will hold the groups we want to keep
-    bool found = false;
+    int idx = 0;
+	bool found = false;
 
     // Iterate through the original queue
     while (!groupQueue.empty()) {
-        Group currentGroup = groupQueue.front(); // Get the front group
-        groupQueue.pop(); // Remove it from the original queue
+		idx++;
 
-        // If this is NOT the group to cancel, push it to the temporary queue
-        if (toLowercase(currentGroup.getRepresentativeName()) != toLowercase(representativeName)) {
-            tempQueue.push(currentGroup);
-        } else {
-            // This is the group to cancel
-            found = true;
-            cout << "Reservation for '" << representativeName << "' cancelled." << endl;
-        }
-    }
+		if (idx == queuePosition) {
+			// If the current index matches the queue position, we skip this group
+			// This effectively removes it from the queue
+			found = true;
+			groupQueue.pop();
+			continue;
+		} else {
+			// If this is not the group to cancel, we push it to the temporary queue
+			Group currentGroup = groupQueue.front();
+			groupQueue.pop();
+			tempQueue.push(currentGroup);
+		}
+	}
 
     // After iterating through all elements, assign the temporary queue back
     // to the original groupQueue. This effectively removes the cancelled group(s).
@@ -103,11 +108,11 @@ void GroupQueue::loadQueueFromFile() {
 
 	// Checks if the file is open before proceeding
 	if (queueFile.is_open()) {
-		Group savedGroup;
 		string savedRepName = "";
 		
 		// Read the file line by line
 		while (getline(queueFile, savedRepName)) {
+			Group savedGroup; // Create a new Group for each entry
 			savedGroup.setRepresentativeName(savedRepName);
 			
 			int childCount, adultCount, seniorCount;
@@ -115,8 +120,8 @@ void GroupQueue::loadQueueFromFile() {
 			queueFile >> childCount;
 			queueFile >> adultCount;
 			queueFile >> seniorCount;
+			queueFile.ignore(); // Ignore the newline after seniorCount
 			
-
 			// Adds the members to the group based on the counts read from the file
 			for (int i = 0; i < childCount; i++) {
 				savedGroup.addChildMember();

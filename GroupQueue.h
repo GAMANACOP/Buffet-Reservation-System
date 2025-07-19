@@ -17,8 +17,8 @@ class GroupQueue {
 		// Function to get the queue itself
 		queue<Group>& getQueue() {return groupQueue;}
 
-		// Cancel a reservation by representative name
-		bool cancelReservation(string representativeName);
+		// Cancel a reservation by queue position
+		bool cancelReservation(int queuePosition);
 
 		// Function to save the queue to a file
 		// The file will be overwritten each time this function is called.
