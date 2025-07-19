@@ -9,35 +9,23 @@
 
 using namespace std;
 
-void Group::appendNode(Member newMember) {
-	MemberNode *newNode = new MemberNode;
-	newNode->data = newMember;
-	newNode->next = NULL;
-	
-	if (!head) {
-		head = newNode;
-	} else {
-		MemberNode *nodePtr = head;
-		
-		while (nodePtr->next) {
-			nodePtr = nodePtr->next;
-		}
-		
-		nodePtr->next = newNode;
-	}
+// Default constructor for Group class.
+// It initializes the counters for different member types to zero.
+Group::Group() : childCount(0), adultCount(0), seniorCount(0) {}
+
+// Destructor for Group class.
+// It clears the members list to free up resources.
+Group::~Group() {
+	members.clear();
 }
 
-void Group::RemoveMember(string MemberType) {
-	if (!head) {
-		cout << "List is empty";
-	} else {
-		if (head->data.getMemberType() == MemberType) {
-			
-			MemberNode *tempPtr = head;
-			tempPtr = head->next;
-			delete head;
-			head = tempPtr;
-			
+// Removes a member of the specified type from the group.
+// It searches through the members list and removes the first member that matches the specified type.
+void Group::removeMember(string MemberType) {
+	list<Member>::iterator it;
+	for (it = members.begin(); it != members.end(); ++it) {
+		if (it->getMemberType() == MemberType) {
+			members.erase(it);
 			if (MemberType == "Child") {
 				childCount--;
 			} else if (MemberType == "Adult") {
@@ -46,65 +34,49 @@ void Group::RemoveMember(string MemberType) {
 				seniorCount--;
 			}
 			return;
-		} else {
-			MemberNode *nodePtr = head->next;
-			MemberNode *prevNode = head;
-			
-			while (nodePtr) {
-				if (nodePtr->data.getMemberType() == MemberType) {
-					prevNode->next = nodePtr->next;
-					delete nodePtr;
-					
-					if (MemberType == "Child") {
-						childCount--;
-					} else if (MemberType == "Adult") {
-						adultCount--;
-					} else if (MemberType == "Senior") {
-						seniorCount--;
-					}
-					
-					return;
-				} else {
-					prevNode = nodePtr;
-					nodePtr = nodePtr->next;
-				}
-			}
 		}
 	}
+	cout << "No member of type " << MemberType << " found." << endl;
 }
 
-void Group::ConfirmReservation(queue<Group> &groupQueue) {
+// Confirms the reservation of the group by pushing it to the provided queue.
+void Group::confirmReservation(queue<Group> &groupQueue) {
 	groupQueue.push(*this);
 }
 
-void Group::AddChild() {
+// Adds a child member to the group.
+void Group::addChildMember() {
 	Member newMember;
 	newMember.setMemberType("Child");
 	newMember.setDiscount(DEFAULT_CHILD_DISCOUNT);
-	appendNode(newMember);
+	members.push_back(newMember);
 	childCount++;
 }
 
-void Group::AddAdult() {
+// Adds an adult member to the group.
+void Group::addAdultMember() {
 	Member newMember;
 	newMember.setMemberType("Adult");
 	newMember.setDiscount(DEFAULT_ADULT_DISCOUNT);
-	appendNode(newMember);
+	members.push_back(newMember);
 	adultCount++;
 }
 
-void Group::AddSenior() {
+// Adds a senior member to the group.
+void Group::addSeniorMember() {
 	Member newMember;
 	newMember.setMemberType("Senior");
 	newMember.setDiscount(DEFAULT_SENIOR_DISCOUNT);
-	appendNode(newMember);
+	members.push_back(newMember);
 	seniorCount++;
 }
 
+// Sets the representative name for the group.
 void Group::setRepresentativeName(string repName) {
 	representativeName = repName;
 }
 
+// Returns the count of members of the specified type.
 int Group::countMember(string memberType) const {
 	if (memberType == "Child") {
 		return childCount;
@@ -115,23 +87,21 @@ int Group::countMember(string memberType) const {
 	}
 }
 
+// Computes the total fee for members of the specified type.
 float Group::computeMemberTotalFee(string memberType) const {
 	float payment = 0.0;
-	
-	MemberNode *nodePtr = head;
-	
-	while (nodePtr) {
-		
-		if (nodePtr->data.getMemberType() == memberType) {
-			payment += DEFAULT_FEE - (DEFAULT_FEE * nodePtr->data.getDiscount());	
+	list<Member>::const_iterator it;
+
+	// Iterate through the members list and calculate the total fee for the specified member type
+	for (it = members.begin(); it != members.end(); ++it) {
+		if (it->getMemberType() == memberType) {
+			payment += DEFAULT_FEE - (DEFAULT_FEE * it->getDiscount());
 		}
-		
-		nodePtr = nodePtr->next;
 	}
-		
 	return payment;
 }
 
+// Computes the total payment for the group by summing up the fees for all member types.
 float Group::computeTotalPayment() const {
 	return (computeMemberTotalFee("Child") + computeMemberTotalFee("Adult") + computeMemberTotalFee("Senior"));
 }

@@ -1,29 +1,25 @@
-#include <iostream>
-#include <queue>
-#include <iomanip>
-#include <cstdlib>
-#include <sstream>
-#include <fstream>
+// ------ VERY IMPORTANCE NOTICE ------
+// Compiler version must be C++11 or above
+// In Dev C++, this can be set in Tools > Compiler Options > Settings > Code Generation
+// Set Language Standard to ISO C++11
 
-#include "Group.h"
-#include "GroupQueue.h"
-#include "Table.h"
-#include "DefaultValues.h"
+#include <iostream> // For cout, cin
+#include <queue> // For GroupQueue
+#include <iomanip> // For setw, setfill
+#include <cstdlib> // For system("CLS") and system("pause")
+#include <sstream> // For ostringstream
+#include <fstream> // For file handling
 
-#define COLUMN_WIDTH 100
-
-// Variables for number of columns
-const int MEMBER_TYPE_COL = 22; // Width for "Member Type" column
-const int COUNT_COL       = 10; // Width for "Count" column
-const int DISCOUNT_COL    = 15; // Width for "Total Fee" column
-const int TOTAL_FEE_COL   = 15; // Width for "Total Fee" column
+#include "Group.h" // For Group class
+#include "GroupQueue.h" // For GroupQueue class
+#include "Table.h" // For Table class
+#include "DefaultValues.h" // For default values like DEFAULT_NUMBER_OF_TABLES, DEFAULT_FEE, etc.
+#include "Utils.h" // For utility functions like toLowercase and calculateTextPadding
 
 using namespace std;
 
-int calculateTextPadding(const string& text, int width) {
-	return (width - text.length()) / 2;
-}
-
+// Function to center text within a given width
+// Returns a string with spaces added to the left and right to center the text
 string centerText(const string& text, int width) {
     int padding = calculateTextPadding(text, width);  // Calculate left padding
     int extra = (width - text.length()) % 2;    // Extra space for odd-length texts
@@ -33,22 +29,22 @@ string centerText(const string& text, int width) {
 }
 
 // Print out a divider that fills the whole width
-void printDivider(const char& fill) {
+void displayLineSeparator(const char& fill) {
 	cout << setfill(fill) << setw(COLUMN_WIDTH) << fill;
 	cout << setfill(' ') << endl;
 }
 
 // Function to print a formatted title with dividers.
-void printTitle(const string& title) {
-	printDivider('=');
+void displayTitle(const string& title) {
+	displayLineSeparator('=');
 	
 	int textWidth = COLUMN_WIDTH - 4;
 	cout << "||" << setw(textWidth) << left << centerText(title, COLUMN_WIDTH - 4) << "||" << endl;
-	printDivider('=');
+	displayLineSeparator('=');
 }
 
 // Function to print out options menu
-void printOptions(string options[], int arraySize) {
+void displayList(string options[], int arraySize) {
 	int leastLinePadding = 0;
 	
 	cout << endl;
@@ -68,17 +64,19 @@ void printOptions(string options[], int arraySize) {
 	}
 	cout << endl;
 	
-	printDivider('=');
+	displayLineSeparator('=');
 	
 	cout << endl;
 }
 
 // Function to print title and options (refer to printTitle and printOptions)
-void printTitleAndOptions(const string& title, string options[], int arraySize) {
-	printTitle(title);
-	printOptions(options, arraySize);
+void displayTitleWithOptions(const string& title, string options[], int arraySize) {
+	displayTitle(title);
+	displayList(options, arraySize);
 }
 
+// Function to display a menu for removing a member from the group
+// This function provides options to remove a child, adult, or senior member from the group reservation
 void displayRemoveMemberMenu(Group &group) {
 	string options[] = {
 		"[1] Remove Child",
@@ -88,7 +86,7 @@ void displayRemoveMemberMenu(Group &group) {
 	};
 	int arraySize = sizeof(options)/sizeof(options[0]);
 	
-	printTitleAndOptions("Buffet Reservation System - Removing Member", options, arraySize);
+	displayTitleWithOptions("Buffet Reservation System - Removing Member", options, arraySize);
 	
 	int option;
 	
@@ -101,31 +99,31 @@ void displayRemoveMemberMenu(Group &group) {
 				if (group.countMember("Child") <= 0) {
 					cout << "Invalid operation. Group current does not have child members." << endl << endl;
 				} else {
-					group.RemoveMember("Child");
+					group.removeMember("Child");
 					cout << "Successfully removed a child member from group reservation." << endl << endl;
 				}
 				
-				printDivider('=');
+				displayLineSeparator('=');
 				break;
 			};
 			case 2: {
 				if (group.countMember("Adult") <= 0) {
 					cout << "Invalid option. Group current does not have adult members." << endl << endl;
 				} else {
-					group.RemoveMember("Adult");
+					group.removeMember("Adult");
 					cout << "Successfully removed an adult member from group reservation." << endl << endl;
 				}
-				printDivider('=');
+				displayLineSeparator('=');
 				break;
 			}
 			case 3: {
 				if (group.countMember("Senior") <= 0) {
 					cout << "Invalid option. Group current does not have senior members." << endl << endl;
 				} else {
-					group.RemoveMember("Senior");
+					group.removeMember("Senior");
 					cout << "Successfully removed a senior member from group reservation." << endl << endl;
 				}
-				printDivider('=');
+				displayLineSeparator('=');
 				break;
 			};
 			
@@ -134,20 +132,21 @@ void displayRemoveMemberMenu(Group &group) {
 	} 
 }
 
-template <typename T1, typename T2, typename T3, typename T4>
-void printRow(T1 column1, T2 column2, T3 column3, T4 column4) {
-	
-	// Use ostringstream to build line, then center the whole line
-    ostringstream oss;
-    oss << left << setw(MEMBER_TYPE_COL) << column1
-               << left << setw(COUNT_COL)       << column2
-               << left << setw(DISCOUNT_COL)   << column3
-               << left << setw(TOTAL_FEE_COL)   << column4;
-    
-    cout << centerText(oss.str(), COLUMN_WIDTH); // Center the entire string
-    cout << endl;
+// Function to print a row with formatted columns
+// This function takes four strings and prints them in a formatted row with specified column widths
+void printRow(const string& column1, const string& column2, const string& column3, const string& column4) {
+	ostringstream oss;
+	oss << left << setw(MEMBER_TYPE_COL) << column1
+		<< left << setw(COUNT_COL)       << column2
+		<< left << setw(DISCOUNT_COL)    << column3
+		<< left << setw(TOTAL_FEE_COL)   << column4;
+
+	cout << centerText(oss.str(), COLUMN_WIDTH);
+	cout << endl;
 }
 
+// Function to print a divider for computations
+// This function prints a line of dashes to separate computation sections in the output
 void printComputationDivider(int content_width) {
 	// Computation divider row
     string divider_line(content_width, '-');
@@ -156,6 +155,8 @@ void printComputationDivider(int content_width) {
     cout << endl;
 }
 
+// Function to print a representative row
+// This function prints the representative's name in a formatted row
 void printRepresentativeRow(string repName) {
 	// Use ostringstream to build line, then center the whole line
     ostringstream oss;
@@ -167,74 +168,74 @@ void printRepresentativeRow(string repName) {
 }
 
 void displayPaymentDetails(const Group &group) {
-	
-    // Print representative name
+	// Print representative name
 	printRepresentativeRow(group.getRepresentativeName());
-	ostringstream defaultFee;
-    defaultFee << "P" << DEFAULT_FEE;
-    printRow("Default Fee:", defaultFee.str(), "", "");
-    cout << endl;
-	
+
+	printRow("Default Fee:", "P" + formatFloat(DEFAULT_FEE), "", "");
+	cout << endl;
+
 	// Print computation divider row
 	const int content_width = MEMBER_TYPE_COL + COUNT_COL + DISCOUNT_COL + TOTAL_FEE_COL + 2;
-    printComputationDivider(content_width);    
-	
+	printComputationDivider(content_width);
+
 	// Print header
 	printRow("Member Type", "Count", "Discount", "Total Fee");
 
-    // --- Print Data Rows ---
-    // For each data row, build the line using ostringstream and then center it.
+	// Child Row
+	printRow(
+		"Child",
+		to_string(group.countMember("Child")),
+		to_string(int(DEFAULT_CHILD_DISCOUNT * 100)) + "%",
+		"P" + formatFloat(group.computeMemberTotalFee("Child"))
+	);
 
-    // Child Row
-    ostringstream childDiscountColumn, childTotalFeeColumn;
-    
-	childDiscountColumn << DEFAULT_CHILD_DISCOUNT * 100 << "%";
-	childTotalFeeColumn << "P" << group.computeMemberTotalFee("Child");
-	
-    printRow("Child", group.countMember("Child"), childDiscountColumn.str(), childTotalFeeColumn.str());
+	// Adult Row
+	printRow(
+		"Adult",
+		to_string(group.countMember("Adult")),
+		to_string(int(DEFAULT_ADULT_DISCOUNT * 100)) + "%",
+		"P" + formatFloat(group.computeMemberTotalFee("Adult"))
+	);
 
-    // Adult Row
-    ostringstream adultDiscountColumn, adultTotalFeeColumn;
-    
-	adultDiscountColumn << DEFAULT_ADULT_DISCOUNT * 100 << "%";
-	adultTotalFeeColumn << "P" << group.computeMemberTotalFee("Adult");
-	
-    printRow("Adult", group.countMember("Adult"), adultDiscountColumn.str(), adultTotalFeeColumn.str());
+	// Senior Row
+	printRow(
+		"Senior",
+		to_string(group.countMember("Senior")),
+		to_string(int(DEFAULT_SENIOR_DISCOUNT * 100)) + "%",
+		"P" + formatFloat(group.computeMemberTotalFee("Senior"))
+	);
 
-    // Senior Row
-    ostringstream seniorDiscountColumn, seniorTotalFeeColumn;
-    
-	seniorDiscountColumn << DEFAULT_SENIOR_DISCOUNT * 100 << "%";
-	seniorTotalFeeColumn << "P" << group.computeMemberTotalFee("Senior");
-	
-    printRow("Senior", group.countMember("Senior"), seniorDiscountColumn.str(), seniorTotalFeeColumn.str());
-    
-    // Computation divider row
-    printComputationDivider(content_width);
+	// Computation divider row
+	printComputationDivider(content_width);
 
 	// Total row
-    ostringstream total_row_oss;
-    total_row_oss << left << setw(MEMBER_TYPE_COL) << "Grand Total"
-                  << left << setw(COUNT_COL)       << group.getTotalMembers()
-                  << left << setw(DISCOUNT_COL)    << ""
-                  << left << setw(TOTAL_FEE_COL)   << group.computeTotalPayment();
-    cout << centerText(total_row_oss.str(), COLUMN_WIDTH);
-    cout << endl << endl; // Newline for this row
+	printRow(
+		"Grand Total",
+		to_string(group.countTotalMembers()),
+		"",
+		"P" + formatFloat(group.computeTotalPayment())
+	);
+
+	cout << endl << endl; // Newline for this row
 }
 
+// Function to display a menu for computing payment
+// This function displays the payment details for a group and waits for user input to continue
 void displayComputePaymentMenu(Group &group) {
 	start:
 		
-	printTitle("Buffet Reservation System - Computing Payment");
+	displayTitle("Buffet Reservation System - Computing Payment");
 	cout << endl;
 	
 	displayPaymentDetails(group);
     
-    printDivider('=');
+    displayLineSeparator('=');
     
     system("pause");
 }
 
+// Function to display a menu for reserving a group
+// This function allows the user to add members to a group, compute payment, confirm reservation,
 void displayReserveGroupMenu(GroupQueue &groupQueue) {
 	Group newGroup;
 	
@@ -254,10 +255,10 @@ void displayReserveGroupMenu(GroupQueue &groupQueue) {
 				
 	while (option != 6 && option != 7) {
 		system("CLS");
-		printTitle("Buffet Reservation System - Reserving Group");
+		displayTitle("Buffet Reservation System - Reserving Group");
 		
 		// Get group's representative name, if there is none.
-		while (newGroup.getRepresentativeName().length() == 0) {
+		if (newGroup.getRepresentativeName().length() == 0) {
 			string repName;
 			
 			cout << endl;
@@ -267,41 +268,57 @@ void displayReserveGroupMenu(GroupQueue &groupQueue) {
 			
 			newGroup.setRepresentativeName(repName);
 			cout << endl;
-			printDivider('=');
+			displayLineSeparator('=');
+
 		}
-				
-		printOptions(options, arraySize);
+
+		start:
+		system("CLS");
+		displayTitle("Buffet Reservation System - Reserving Group");
+
+		// This section displays the current group information, including the representative's name and total members
+		string groupInfo[] = {
+			"Group Representative: " + newGroup.getRepresentativeName(),
+			"Total Members: " + to_string(newGroup.countTotalMembers()),
+			"  - Children: " + to_string(newGroup.countMember("Child")),
+			"  - Adults: " + to_string(newGroup.countMember("Adult")),
+			"  - Seniors: " + to_string(newGroup.countMember("Senior"))
+		};
+		int groupInfoSize = sizeof(groupInfo) / sizeof(groupInfo[0]);
+		displayList(groupInfo, groupInfoSize);
+
+		// Display the options menu for reserving a group
+		displayList(options, arraySize);
 		
-		selectOption:
 		cout << "Select an operation: ";
 		cin >> option;
 		
 		switch (option) {
-			case 1: { // Add child
-				newGroup.AddChild();
+			case 1: { // Add Child
+				newGroup.addChildMember();
 				cout << "Successfully added child to group!" << endl;
 				cout << endl;
-				printDivider('=');
+				displayLineSeparator('=');
 				cout << endl;
-				goto selectOption;
+				goto start;
 				break;
 			}
 			case 2: { // Add Adult
-				newGroup.AddAdult();
+				newGroup.addAdultMember();
 				cout << "Successfully added adult to group!" << endl;
 				cout << endl;
-				printDivider('=');
+				displayLineSeparator('=');
 				cout << endl;
-				goto selectOption;
+				goto start;
 				break;
 			}
 			case 3: { // Add Senior
-				newGroup.AddSenior();
+				newGroup.addSeniorMember();
 				cout << "Successfully added senior to group!" << endl;
 				cout << endl;
-				printDivider('=');
+				displayLineSeparator('=');
 				cout << endl;
-				goto selectOption;
+				goto start;
 				break;
 			}
 			case 4: { // Remove member
@@ -319,7 +336,7 @@ void displayReserveGroupMenu(GroupQueue &groupQueue) {
 				groupQueue.appendToQueue(newGroup);
 				groupQueue.saveQueueToFile();
 				cout << "Successfully added group to queue!" << endl << endl;
-				printDivider('=');
+				displayLineSeparator('=');
 				system("pause");
 				break;
 			}
@@ -332,13 +349,27 @@ void displayReserveGroupMenu(GroupQueue &groupQueue) {
 	}
 }
 
+// Function to display a menu for cancelling a reservation
+// This function allows the user to cancel a reservation by entering the representative's name
 void displayCancelReservationMenu(GroupQueue &groupQueue) {
+	
+	// Clear the console and display the title
+	system("CLS");
+	displayTitle("Buffet Reservation System - Cancel Reservation");
+
+	// Check if the queue is empty
+	// If it is empty, display a message and return to the main menu
 	if (groupQueue.getQueue().empty()) {
+		cout << endl;
 		cout << "The queue is empty! No reservations can be cancelled." << endl << endl;
-		printDivider('=');
+		cout << endl;
+		displayLineSeparator('=');
 		system("pause");
 		return;
 	}
+
+	// If the queue is not empty, prompt the user to enter the representative's name
+	// to cancel the reservation
 	
 	string representativeName;
 	
@@ -346,182 +377,219 @@ void displayCancelReservationMenu(GroupQueue &groupQueue) {
 	cin.ignore();
 	getline(cin, representativeName);
 	
+	// Attempt to cancel the reservation
+	// The cancelReservation function will return true if successful, false otherwise
 	bool success = groupQueue.cancelReservation(representativeName);
 	
 	if (!success) {
 		cout << "Group with entered representative name is not found." << endl;
 	}
 	
-	printDivider('=');
+	displayLineSeparator('=');
 	
 	system("pause");
 }
 
+
+// Function to display available tables
+// This function iterates through the list of tables and displays those that are currently available
 void displayAvailableTables(TablesList &tables) {
+	system("CLS");
+	displayTitle("Buffet Reservation System - Available Tables");
+
 	list<Table>::iterator iter;
 	
-	printDivider('=');
-	
-	cout << centerText("Currently Available Tables:", COLUMN_WIDTH) << endl;
+	cout << endl << centerText("Currently Available Tables:", COLUMN_WIDTH) << endl;
 	
 	bool hasAvailableTable = false;
 
-	for (iter = tables.getList().begin(); iter != tables.getList().end(); iter++) {
+	// Collect available tables into an array of strings
+	string availableTables[DEFAULT_NUMBER_OF_TABLES];
+	int availableCount = 0;
+	for (iter = tables.getList().begin(); iter != tables.getList().end(); ++iter) {
 		if (iter->isTableEmpty()) {
 			hasAvailableTable = true;
-		    ostringstream oss;
-		    oss << left << "Table #" << iter->getTableNumber();
-		    
-		    cout << centerText(oss.str(), COLUMN_WIDTH) << endl;
+			availableTables[availableCount++] = "Table #" + to_string(iter->getTableNumber());
 		}
 	}
-	
+
 	if (!hasAvailableTable) {
-		cout << centerText("There are no available tables.", COLUMN_WIDTH) << endl;
+		string msg[] = { "There are no available tables." };
+		displayList(msg, 1);
+	} else {
+		displayList(availableTables, availableCount);
 	}
 	
-	printDivider('=');
 	system("pause");
 }
 
+
+// Function to display a menu for finding a representative's table
+// This function allows the user to search for tables occupied by a specific representative
+// and displays the results
 void displayFindRepresentativeTableMenu(TablesList &tables) {
 	string repName;
 	cin.ignore();
-	
+
 	cout << "Enter the representative's name: ";
 	getline(cin, repName);
-	
-	int tableNumber = tables.findRepresentativeTable(repName);
-	
-	if (tableNumber > 0) {
-		cout << "Representative \"" << repName << "\" is found in Table #" << tableNumber << endl;
-	} else {
-		cout << "Table of \"" << repName << "\" is not found." << endl;
+
+	// Count matches first
+	int matchCount = 0;
+	list<Table>::iterator it;
+
+	// Iterate through the tables to find matches
+	for (it = tables.getList().begin(); it != tables.getList().end(); ++it) {
+		if (!it->isTableEmpty() && it->getCurrentGroup().getRepresentativeName() == repName) {
+			matchCount++;
+		}
 	}
-	
-	printDivider('=');
-	
+
+	system("CLS");
+	displayTitle("Buffet Reservation System - Find Representative's Table");
+
+	// If matches are found, display them
+	if (matchCount > 0) {
+		string foundTables[matchCount];
+		int idx = 0;
+
+		for (it = tables.getList().begin(); it != tables.getList().end(); ++it) {
+			if (!it->isTableEmpty() && it->getCurrentGroup().getRepresentativeName() == repName) {
+				foundTables[idx++] = "Representative \"" + repName + "\" is found in Table #" + to_string(it->getTableNumber());
+			}
+		}
+
+		cout << endl << centerText("Found Tables for Representative: " + repName, COLUMN_WIDTH) << endl;
+		cout << centerText("Total Matches: " + to_string(matchCount), COLUMN_WIDTH) << endl << endl;
+		displayLineSeparator('=');
+		displayList(foundTables, matchCount);
+	} else {
+		cout << endl << centerText("No tables found for representative: " + repName, COLUMN_WIDTH) << endl;
+	}
+
 	system("pause");
 }
 
+// Function to display a menu for billing out and vacating occupied tables
 void displayBillOutMenu(TablesList &tables) {
-	
-	int selectedTableNumber = 0;
+	int selectedTableNumber = -1;
 	bool successfullyVacateTable = false;
 	bool hasOccupiedTable = false;
 	list<Table>::iterator iter;
-	
-	
-	while (selectedTableNumber <= tables.getNumOfOccupiedTables() && !successfullyVacateTable) {
-		system("CLS");
-		printTitle("Buffet Reservation System - Billing Out");
 
-		if (selectedTableNumber <= 0) {
+	while (!successfullyVacateTable) {
+		system("CLS");
+		displayTitle("Buffet Reservation System - Billing Out");
+
+		cout << endl;
+		cout << centerText("Occupied Tables:", COLUMN_WIDTH) << endl;
+
+		// Checks if there are occupied tables.
+		// If there are no occupied tables, display a message and return to the main menu
+		if (tables.getNumOfOccupiedTables() <= 0) {
+			cout << centerText("There are no occupied tables.", COLUMN_WIDTH) << endl << endl;
+			displayLineSeparator('=');
 			cout << endl;
-			cout << centerText("Occupied Tables:", COLUMN_WIDTH) << endl;
-			
-			if (tables.getNumOfOccupiedTables() <= 0) {
-				cout << centerText("There are no occupied tables.", COLUMN_WIDTH) << endl << endl;
-				printDivider('=');
-				cout << endl;
-				system("pause");
+			system("pause"); // Pause before returning to the main menu
+			break;
+		} else {
+			// If there are occupied tables, display them
+
+			// Collect occupied tables into an array of strings
+			string occupiedTables[DEFAULT_NUMBER_OF_TABLES + 1];
+			int occupiedCount = 0;
+
+			for (iter = tables.getList().begin(); iter != tables.getList().end(); iter++) {
+				if (!iter->isTableEmpty()) {
+					string entry = "[" + to_string(iter->getTableNumber()) + "] Table #" +
+						to_string(iter->getTableNumber()) + " : " +
+						iter->getCurrentGroup().getRepresentativeName();
+					occupiedTables[occupiedCount++] = entry;
+				}
+			}
+
+			// Add option to exit
+			occupiedTables[occupiedCount++] = "[0] Go back to main menu";
+
+			if (occupiedCount > 0) {
+				hasOccupiedTable = true;
+				displayList(occupiedTables, occupiedCount);
+			}
+
+			cout << "Enter the table number to bill out and vacate (0 to go back): ";
+			cin >> selectedTableNumber;
+
+			if (selectedTableNumber == 0) {
+				// Go back to main menu
 				break;
-			} else {
-				int leastLinePadding = 0;
-				for (iter = tables.getList().begin(); iter != tables.getList().end(); iter++) {
-					if (!iter->isTableEmpty()) {
-						ostringstream oss;
-						oss << left << "Table #" << iter->getTableNumber() << " : " << iter->getCurrentGroup().getRepresentativeName();
-						
-						int linePadding = calculateTextPadding(oss.str(), COLUMN_WIDTH);
-						
-						if (leastLinePadding == 0) {
-							leastLinePadding = linePadding;
-						} else {
-							if (linePadding < leastLinePadding) leastLinePadding = linePadding;
-						}
-					}
-				}
-				
-				
-				for (iter = tables.getList().begin(); iter != tables.getList().end(); iter++) {
-					if (!iter->isTableEmpty()) {
-						hasOccupiedTable = true;
-					    ostringstream oss;
-					    
-					    oss << left << string(leastLinePadding, ' ') <<"Table #" << iter->getTableNumber() << " : " << iter->getCurrentGroup().getRepresentativeName();
-					    
-					    cout << oss.str() << endl;
-					}
-				}
-				cout << endl;
-				printDivider('=');
-				cout << endl;
-				
-				cout << "Enter the table number to bill out and vacate: ";
-				cin >> selectedTableNumber;
 			}
-		} else if (selectedTableNumber > 0) {
-			// Checks if the selected table number is within the bounds of 0 and number of occupied tables.
-			if (selectedTableNumber > 0 && selectedTableNumber <= tables.getNumOfOccupiedTables()) {
-				iter = tables.getList().begin();
-				
-				advance(iter, selectedTableNumber - 1);
-				
-				Group currentGroup = iter->getCurrentGroup();
-				
-				cout << endl;
-				displayPaymentDetails(currentGroup);
-				cout << endl;
-				printDivider('=');
-				cout << endl;
-				
-				float pay = 0;
-				float amountToPay = iter->getCurrentGroup().computeTotalPayment();
-				cout << "Enter payment: ";
-				while (pay < amountToPay) {
-					cin >> pay;
-					if (pay < amountToPay) {
-						cout << "Invalid amount. Enter a valid payment: ";
-					}
+
+			// Find the table with the entered table number
+			bool found = false;
+			for (iter = tables.getList().begin(); iter != tables.getList().end(); ++iter) {
+				if (!iter->isTableEmpty() && iter->getTableNumber() == selectedTableNumber) {
+					found = true;
+					break;
 				}
-				
-				cout << endl;
-				printDivider('=');
-				cout << endl;
-				
-				ostringstream ossRepName;
-				ossRepName << left << setw(25) << "Representative Name: " << currentGroup.getRepresentativeName();
-				
-				ostringstream ossPay;
-				ossPay << left << setw(25) << "Amount received: " << pay;
-								
-				ostringstream ossChange;
-				ossChange << left << setw(25) <<  "Change: " << (pay - amountToPay);
-				
-				string finalPaymentInfo[] {
-					ossRepName.str(),
-					ossPay.str(),
-					ossChange.str()
-				};
-				
-				int arraySize = sizeof(finalPaymentInfo)/sizeof(finalPaymentInfo[0]);
-				printOptions(finalPaymentInfo, arraySize);
-				
-				cout << endl;
-								
-				tables.vacateTable(*iter);
-				
-				tables.saveTablesToFile();
-				successfullyVacateTable = true;
-								
 			}
+
+			if (!found) {
+				cout << "Invalid table number. Please try again." << endl;
+				system("pause");
+				continue;
+			}
+
+			// Display payment details for the selected table
+			Group currentGroup = iter->getCurrentGroup();
+
+			cout << endl;
+			displayPaymentDetails(currentGroup);
+			cout << endl;
+			displayLineSeparator('=');
+			cout << endl;
+
+			float pay = 0;
+			float amountToPay = currentGroup.computeTotalPayment();
+			cout << "Enter payment: ";
+			while (pay < amountToPay) {
+				cin >> pay;
+				if (pay < amountToPay) {
+					cout << "Invalid amount. Enter a valid payment: ";
+				}
+			}
+
+			cout << endl;
+			displayLineSeparator('=');
+			cout << endl;
 			
+			// Instead of using ostringstream, build the strings directly
+			string repNameStr = "Representative Name: " + currentGroup.getRepresentativeName();
+			string payStr = "Amount received: " + formatFloat(pay);
+			string changeStr = "Change: " + formatFloat(pay - amountToPay);
+
+			string finalPaymentInfo[] {
+				repNameStr,
+				payStr,
+				changeStr
+			};
+
+			int arraySize = sizeof(finalPaymentInfo)/sizeof(finalPaymentInfo[0]);
+			displayList(finalPaymentInfo, arraySize);
+
+			cout << endl;
+
+			tables.vacateTable(*iter);
+
+			tables.saveTablesToFile();
+			successfullyVacateTable = true;
+
 			system("pause");
 		}
 	}
 }
 
+// Function to display the main menu of the buffet reservation system
+// This function clears the console, displays the title, and lists the available options
 void displayMainMenu() {
 	system("CLS");
 	string options[] = {
@@ -534,9 +602,29 @@ void displayMainMenu() {
 		"[7] Exit",
 	};
 	int arraySize = sizeof(options)/sizeof(options[0]);
-	printTitleAndOptions("Buffet Reservation System", options, arraySize);
+	displayTitleWithOptions("Buffet Reservation System", options, arraySize);
 }
 
+
+// Function to assign the first group in the queue to an available table
+void assignQueuedToTable(GroupQueue &groupQueue, TablesList &tables) {
+	if (groupQueue.getQueue().empty()) {
+		cout << "The queue is empty! No queued to assign to table." << endl;
+	} else {
+		int assignedTableNumber = tables.assignGroupToTable(groupQueue.getQueue().front());
+		
+		cout 	<< "Assigned Group of \""
+				<< groupQueue.getQueue().front().getRepresentativeName() 
+				<< "\" to Table #" << assignedTableNumber << endl;
+		groupQueue.getQueue().pop();
+		groupQueue.saveQueueToFile();
+		
+	}
+	system("pause");
+}
+
+// Main function to run the buffet reservation system
+// This function initializes the tables and group queue, displays the main menu, and handles user input
 int main() {
 	TablesList tables;
 	tables.createTables(DEFAULT_NUMBER_OF_TABLES);
@@ -571,19 +659,7 @@ int main() {
 				break;
 			}
 			case 5: { // Check Available Tables
-				if (groupQueue.getQueue().empty()) {
-					cout << "The queue is empty! No queued to assign to table." << endl;
-				} else {
-					int assignedTableNumber = tables.assignGroupToTable(groupQueue.getQueue().front());
-					
-					cout 	<< "Assigned Group of \""
-							<< groupQueue.getQueue().front().getRepresentativeName() 
-							<< "\" to Table #" << assignedTableNumber << endl;
-					groupQueue.getQueue().pop();
-					groupQueue.saveQueueToFile();
-					
-				}
-				system("pause");
+				assignQueuedToTable(groupQueue, tables);
 				break;
 			}
 			case 6: { // TODO: Bill Out & Vacate Occupied Table
