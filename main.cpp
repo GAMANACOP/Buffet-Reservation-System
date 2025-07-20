@@ -361,7 +361,8 @@ void displayReserveGroupMenu(GroupQueue &groupQueue) {
 }
 
 // Function to display a menu for cancelling a reservation
-// This function allows the user to cancel a reservation by entering the representative's name
+// This function allows the user to cancel a reservation by entering the position of the group in the queue
+// If the queue is empty, it displays a message and returns to the main menu
 void displayCancelReservationMenu(GroupQueue &groupQueue) {
 	start:
 	// Clear the console and display the title
