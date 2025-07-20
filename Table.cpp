@@ -129,8 +129,10 @@ void TablesList::loadTablesFromFile() {
 	
 	if (tablesFile.is_open()) {
 		int savedTableNumber = 0;
-				
-		while (tablesFile >> savedTableNumber) {
+		int savedTables = 0;
+
+		while (savedTables <= DEFAULT_NUMBER_OF_TABLES && tablesFile >> savedTableNumber) {
+			savedTables++;
 			tablesFile.ignore();
 			
 			Group savedGroup;		

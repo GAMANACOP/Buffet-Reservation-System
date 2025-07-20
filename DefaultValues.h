@@ -17,6 +17,7 @@ string const DEFAULT_QUEUE_FILENAME = "BRSQueue.txt";
 
 // Default number of tables in the buffet reservation system
 // This can be changed to any number of tables as needed
+// However, in Dev C++, you must rebuild your program by selecting Execute > Clean/Rebuild All
 int const DEFAULT_NUMBER_OF_TABLES = 10;
 
 // Default column widths for displaying information

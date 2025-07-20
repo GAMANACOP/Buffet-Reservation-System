@@ -659,7 +659,7 @@ void displayMainMenu() {
 void assignQueuedToTable(GroupQueue &groupQueue, TablesList &tables) {
 	// Check if there are available tables first
 	if (tables.getNumOfCurrentTables() == tables.getNumOfOccupiedTables()) {
-		cout << "There are no available tables to assign a group." << endl;
+		cout << "There are no available tables to assign a group." << endl << endl;
 	} else if (groupQueue.getQueue().empty()) {
 		// If the queue is empty, display a message
 		cout << "The queue is empty. No queued group to assign a table." << endl << endl;
